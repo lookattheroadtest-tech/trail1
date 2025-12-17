@@ -2,8 +2,6 @@ name: ZAP Authenticated Full Scan (Auth0 – Browser Based)
 
 on:
   workflow_dispatch:
-  push:
-  pull_request:
 
 jobs:
   zap-full-scan:
@@ -13,13 +11,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Fix workspace permissions
-      run: chmod -R 777 .
+    - name: Debug – list repo files
+      run: |
+        echo "=== Repo root ==="
+        ls -la
+        echo "=== Find automation file ==="
+        find . -name "automation.yaml" -o -name "automation.yml"
 
     - name: Create output folder
       run: mkdir -p zap-output && chmod 777 zap-output
 
-    - name: Run ZAP Authenticated Full Scan (Auth0 Headless)
+    - name: Run ZAP Automation Framework
       run: |
         docker run --rm \
           -v "$(pwd):/zap/wrk" \
@@ -29,14 +31,8 @@ jobs:
           -addoninstall webdriverlinux \
           -autorun /zap/wrk/automation.yaml
 
-    - name: Upload ZAP HTML Report
+    - name: Upload ZAP reports
       uses: actions/upload-artifact@v4
       with:
-        name: zap-html-report
-        path: zap-output/zap-report.html
-
-    - name: Upload ZAP XML Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: zap-xml-report
-        path: zap-output/zap-report.xml
+        name: zap-reports
+        path: zap-output/

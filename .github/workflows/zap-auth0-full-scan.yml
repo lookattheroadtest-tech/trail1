@@ -1,0 +1,47 @@
+name: ZAP Authenticated Full Scan (Auth0 – Browser Based)
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  zap-full-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Fix workspace permissions
+      run: chmod -R 777 .
+
+    - name: Create output folder
+      run: mkdir -p zap-output && chmod 777 zap-output
+
+    - name: Run ZAP Authenticated Full Scan (Auth0 Headless)
+      run: |
+        docker run --rm \
+          -v "$(pwd):/zap/wrk" \
+          ghcr.io/zaproxy/zaproxy:stable \
+          zap.sh -cmd \
+          -autorun /zap/wrk/automation.yaml
+
+    - name: Upload ZAP HTML Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-html-report
+        path: zap-output/zap-report.html
+
+    - name: Upload ZAP XML Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-xml-report
+        path: zap-output/zap-report.xml
+
+    - name: Upload ZAP Debug Log
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: zap-debug-log
+        path: zap.log

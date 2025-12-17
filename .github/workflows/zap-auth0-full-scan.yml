@@ -25,6 +25,7 @@ jobs:
           -v "$(pwd):/zap/wrk" \
           ghcr.io/zaproxy/zaproxy:stable \
           zap.sh -cmd \
+          -addoninstall selenium \
           -autorun /zap/wrk/automation.yaml
 
     - name: Upload ZAP HTML Report
@@ -40,8 +41,8 @@ jobs:
         path: zap-output/zap-report.xml
 
     - name: Upload ZAP Debug Log
-      uses: actions/upload-artifact@v4
       if: always()
+      uses: actions/upload-artifact@v4
       with:
         name: zap-debug-log
         path: zap.log

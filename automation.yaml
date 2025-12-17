@@ -1,18 +1,24 @@
 env:
   contexts:
-    - name: ValuelabsAuth
+    - name: ValuelabsAdmin
       urls:
         - https://valuelabs-admin.adhoc.stabilthus.io
       includePaths:
         - https://valuelabs-admin\.adhoc\.stabilthus\.io/.*
+      excludePaths:
+        - https://.*auth0\.com.*
+
       authentication:
         method: browser
         parameters:
           loginPageUrl: https://valuelabs-admin.adhoc.stabilthus.io/
           browserId: firefox-headless
+          script: /zap/wrk/auth.js   # ✅ CORRECT KEY
+
         verification:
           loggedInRegex: "(?i)(dashboard|accounts|logout)"
           loggedOutRegex: "(?i)(auth0|login|authorize)"
+
       users:
         - name: admin
           credentials:
@@ -22,18 +28,31 @@ env:
 jobs:
   - type: spider
     parameters:
-      context: ValuelabsAuth
+      context: ValuelabsAdmin
       user: admin
       maxDuration: 30
+      maxDepth: 10
 
   - type: ajaxSpider
     parameters:
-      context: ValuelabsAuth
+      context: ValuelabsAdmin
       user: admin
       maxDuration: 30
 
   - type: activeScan
     parameters:
-      context: ValuelabsAuth
+      context: ValuelabsAdmin
       user: admin
-      maxScanDurationInMins: 120
+      maxScanDurationInMins: 180
+
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: /zap/wrk/zap-output
+      reportFile: zap-report.html
+
+  - type: report
+    parameters:
+      template: xml
+      reportDir: /zap/wrk/zap-output
+      reportFile: zap-report.xml

@@ -1,0 +1,39 @@
+env:
+  contexts:
+    - name: ValuelabsAuth
+      urls:
+        - https://valuelabs-admin.adhoc.stabilthus.io
+      includePaths:
+        - https://valuelabs-admin\.adhoc\.stabilthus\.io/.*
+      authentication:
+        method: browser
+        parameters:
+          loginPageUrl: https://valuelabs-admin.adhoc.stabilthus.io/
+          browserId: firefox-headless
+        verification:
+          loggedInRegex: "(?i)(dashboard|accounts|logout)"
+          loggedOutRegex: "(?i)(auth0|login|authorize)"
+      users:
+        - name: admin
+          credentials:
+            Username: stablehouse-admin-test@xbto.com
+            Password: 7vk6N!ksBR*DkCc8EgjmvLbjWQWEj!vW
+
+jobs:
+  - type: spider
+    parameters:
+      context: ValuelabsAuth
+      user: admin
+      maxDuration: 30
+
+  - type: ajaxSpider
+    parameters:
+      context: ValuelabsAuth
+      user: admin
+      maxDuration: 30
+
+  - type: activeScan
+    parameters:
+      context: ValuelabsAuth
+      user: admin
+      maxScanDurationInMins: 120
